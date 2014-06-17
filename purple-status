@@ -1,0 +1,26 @@
+#!/bin/sh
+
+PIDGINSTATUS=$1
+
+pgrep -f pidgin > /dev/null
+# Exit if no pidgin running
+if [[ "$?" == "1" ]]; then
+        exit 0
+fi
+
+# Discover dbus daemon
+GSESS_PID=$(/usr/bin/pgrep -u $USER -nf /bin/dbus-daemon)
+
+# Exit if dbus-daemon isn't running as $USER
+if [[ -z "$GSESS_PID" ]]; then
+        exit 0
+fi
+
+# Grab DBUS session address
+export $(grep -z DBUS_SESSION_BUS_ADDRESS /proc/$GSESS_PID/environ)
+
+if [[ -z "$PIDGINSTATUS" ]]; then
+        purple-remote "setstatus?status=available"
+else
+        purple-remote "setstatus?status=$PIDGINSTATUS"
+fi
