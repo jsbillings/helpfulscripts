@@ -11,7 +11,7 @@ fi
 # Discover dbus daemon
 GSESS_PID=$(/usr/bin/pgrep -u $USER -nf /bin/dbus-daemon)
 
-# Exit if gnome-session isn't running as $USER
+# Exit if dbus-daemon isn't running as $USER
 if [[ -z "$GSESS_PID" ]]; then
         exit 0
 fi
