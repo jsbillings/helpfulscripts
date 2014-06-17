@@ -1,0 +1,26 @@
+#!/bin/bash
+
+status=$1
+
+if [[ -z "$status" ]]; then
+        echo "Usage: $0 <presense status>"
+        echo "    example: $0 offline"
+        exit 1
+fi
+
+# Discover dbus daemon
+GSESS_PID=$(/usr/bin/pgrep -u $USER -nf /bin/dbus-daemon)
+
+# Exit if gnome-session isn't running as $USER
+if [[ -z "$GSESS_PID" ]]; then
+        exit 0
+fi
+
+# Grab DBUS session address
+export $(grep -z DBUS_SESSION_BUS_ADDRESS /proc/$GSESS_PID/environ)
+
+# Loop through all accounts
+mc-tool list | while read account; do
+        # Tell all accounts to set presence
+        mc-tool request "$account" "$status"
+done

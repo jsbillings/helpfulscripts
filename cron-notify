@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Discover dbus daemon
+GSESS_PID=$(/usr/bin/pgrep -u $USER -nf /bin/dbus-daemon)
+
+# Exit if gnome-session isn't running as $USER
+if [[ -z "$GSESS_PID" ]]; then
+        exit 0
+fi
+
+# Grab DBUS session address
+export $(grep -z DBUS_SESSION_BUS_ADDRESS /proc/$GSESS_PID/environ)
+
+# Exit if gnome-screensaver is active
+if [ -n "$(/usr/bin/pgrep -f gnome-screensaver)" ] && [ -z "$(/usr/bin/gnome-screensaver-command -q|/bin/grep inactive)" ]; then
+exit 0
+fi
+
+# Send arguments to notify-send
+exec /usr/bin/notify-send "$@"

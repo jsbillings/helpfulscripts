@@ -1,0 +1,16 @@
+#!/bin/bash
+
+latest=20
+
+if [[ "$1" =~ ^[0-9]+$ ]]; then
+        latest=$1
+fi
+
+printf "%10s %10s %6s %s\n" "OOM score" "User" "PID" "Process Name"
+for procdir in $(find /proc -maxdepth 1 -regex '/proc/[0-9]+'); do
+  printf "%10d %10s %6d %s\n" \
+    "$(cat $procdir/oom_score)" \
+    "$(stat --printf %U $procdir/)" \
+    "$(basename $procdir)" \
+    "$(cat $procdir/cmdline | tr '\0' ' ' | head -c 100)"
+done 2>/dev/null | sort -nr | head -n $latest
